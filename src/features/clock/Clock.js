@@ -18,6 +18,7 @@ class PresentationalClock extends React.Component {
         }
         this.togglePlay = this.togglePlay.bind(this);
         this.reset = this.reset.bind(this)
+        this.audioBeep = React.createRef;
     }
 
     startCountdown() {
@@ -26,8 +27,12 @@ class PresentationalClock extends React.Component {
             if (value > 0) {
                 this.setState({value: value - 1})
             } else {
-                this.props.toggleActivity();
-                this.setState({value: this.props.activity === 'session' ? this.props.sessionLength * 60: this.props.breakLength * 60})
+                const switchCountdown = async () => {
+                    await this.props.toggleActivity();
+                    this.audioBeep.play()
+                    this.setState({value: this.props.activity === 'session' ? this.props.sessionLength * 60: this.props.breakLength * 60})
+                }
+                switchCountdown();
             }
         }, 1000);
         this.setState({intervalID: intervalID})
@@ -37,8 +42,8 @@ class PresentationalClock extends React.Component {
         clearInterval(this.state.intervalID);
     }
 
-    togglePlay() {
-        this.props.toggleElapse();
+    async togglePlay() {
+        await this.props.toggleElapse();
         if (this.props.elapse) {
             this.startCountdown.call(this);
         } else {
@@ -46,9 +51,18 @@ class PresentationalClock extends React.Component {
         }
     }
 
-    reset() {
-        this.props.resetBreak();
-        this.props.resetSession();
+    async reset() {
+        await this.props.resetBreak();
+        await this.props.resetSession();
+        this.audioBeep.pause();
+        this.audioBeep.currentTime = 0;
+        this.setState({
+            value: this.props.sessionLength * 60
+        })
+        if (this.props.elapse) {
+            await this.props.toggleElapse();
+            this.endCountdown.call(this);
+        }
     }
 
     render() {
@@ -57,29 +71,57 @@ class PresentationalClock extends React.Component {
         let secondString
         if (second < 10) {
             secondString = '0' + second;
+        } else {
+            secondString = second.toString();
         }
 
         return (
             <div>
                 <div className='timer-wrapper'>
                     <div id='timer' className='timer'>
-                        <div id='timer-label' className='label'>{this.props.activity}</div>
-                        <div id='time-left' className='value'>{`${minute}:${secondString}`}</div>
+                        <div id='timer-label' className='label'>{capitalizeFirstLetter(this.props.activity)}</div>
+                        <div id='time-left' className='value'>{
+                        `${minute}:${secondString}`
+                        }</div>
                     </div>
                 </div>
                 <div className='buttons-wrapper'>
-                    <Button onClick={() => this.togglePlay} id='start_stop'>
+                    <Button onClick={this.togglePlay} id='start_stop'>
                         <FontAwesomeIcon icon={faForwardStep} />
                     </Button>
-                    <Button onClick={() => this.reset} id='reset'>
+                    <Button onClick={this.reset} id='reset'>
                         <FontAwesomeIcon icon={faArrowsRotate} />
                     </Button>
                 </div>
+                <audio
+                    id="beep"
+                    preload="auto"
+                    ref={(audio) => {
+                        this.audioBeep = audio;
+                    }}
+                    src="https://raw.githubusercontent.com/freeCodeCamp/cdn/master/build/testable-projects-fcc/audio/BeepSound.wav"
+                />
             </div>
 
         )
     }
+
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        if (this.props.activity === 'session') {
+            if (prevProps.sessionLength !== this.props.sessionLength) {
+                this.setState({value: this.props.sessionLength * 60})
+            }} else {
+                if (prevProps.breakLength !== this.props.breakLength) {
+                    this.setState({value: this.props.breakLength * 60})
+                }
+            }
+        }
 }
+
+function capitalizeFirstLetter(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+  }
+
 
 const mapStateToProps = (state) => {
     return {
@@ -92,10 +134,10 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch) => {
     return {
-        toggleActivity: () => dispatch(toggleActivity),
-        toggleElapse: () => dispatch(toggleElapse),
-        resetBreak: () => dispatch(resetBreak),
-        resetSession: () => dispatch(resetSession)
+        toggleActivity: () => {dispatch(toggleActivity())},
+        toggleElapse: () => {dispatch(toggleElapse())},
+        resetBreak: () => {dispatch(resetBreak())},
+        resetSession: () => {dispatch(resetSession())}
     }
 }
 
