@@ -1,25 +1,34 @@
-import logo from './logo.svg';
-import './App.css';
+import React from 'react';
+import { BreakCustomizer } from './features/breakCustomizer/BreakCustomizer';
+import { SessionCustomizer } from './features/sessionCustomizer/SessionCustomizer';
+import { WorkingClock } from './features/clock/Clock'
+import Container from 'react-bootstrap/Container';
+import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/Col';
+
+import './App.scss';
+
 
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+    return (
+        <Container>
+            <h1>25+5 Clock</h1>
+            <Row>
+                <Col>
+                    <p className='customizer-set-title'>Break Length</p>
+                    <BreakCustomizer/>
+                </Col>
+                <Col>
+                    <p className='customizer-set-title'>Session Length</p>
+                    <SessionCustomizer/>
+                </Col>
+            </Row>
+            <Row>
+                <WorkingClock/>
+            </Row>
+        </Container>
+        
+    )
 }
 
 export default App;

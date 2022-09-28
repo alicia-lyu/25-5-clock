@@ -1,0 +1,30 @@
+@import "~bootstrap/scss/bootstrap";
+
+
+.timer-wrapper {
+    text-align: center;
+    padding: 10px;
+}
+.timer {
+    border: 5px solid $primary;
+    border-radius: 10%;
+    display: inline-block;
+}
+
+.timer .value {
+    font-size: 3em;
+    padding: 0.5em
+}
+
+.timer .label {
+    padding: 1em;
+}
+
+.buttons-wrapper {
+    text-align: center;
+    padding: 10px;
+}
+
+.buttons-wrapper button {
+    margin: 10px;
+}
